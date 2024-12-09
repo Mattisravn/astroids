@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>astroids remake by me</title>
+        <style>
+            body {
+                background-color: rgb(49, 49, 49);
+            }
+            .ship {
+                background-image: url("sprites/ship.png");
+                height: 2vw;
+                width: 2vw;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background-repeat: no-repeat;
+                background-size: contain;
+                image-rendering: pixelated;
+                rotate: 0deg;
+            }
+            .rock {
+                background-image: url("sprites/rock.png");
+                height: 2vw;
+                width: 2vw;
+                position: absolute;
+                top: 35%;
+                left: 34%;
+                transform: translate(-50%, -50%);
+                background-repeat: no-repeat;
+                background-size: contain;
+                image-rendering: pixelated;
+                rotate: 0deg;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="ship"></div>
+        <div class="rock"></div>
+        <script>
+            function createSprite(x, y, image) {
+                let element = document.createElement("div")
+                document.body.appendChild(element)
+                return {
+                    x: x,
+                    y: y,
+                    velocity: 0,
+                    angle: 0,
+                    element: element
+                }
+            }
+        </script>
+    </body>
+</html>
+
+
