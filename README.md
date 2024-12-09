@@ -1,1 +1,3 @@
-# astroids
+# Astroids - the best game ever
+
+Et remake af en gammel klassiker i JavaScript...
