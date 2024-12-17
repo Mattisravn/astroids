@@ -23,7 +23,7 @@ primes.push(11)
 let total = 0
 for(let p of primes) total += p
 
-// Her laver vi et variabel "o" med et objekt der har felterne "a", "b" og "c", alle med værdien 1
+// Her laver vi en variabel "o" med et objekt der har felterne "a", "b" og "c", alle med værdien 1
 let o = {a: 1, b: 1, c: 1}
 
 // Her sætter vi feltet "a" på objektet i variablen "o" til værdien 2
@@ -42,7 +42,7 @@ let r = f(4, 6)
 let s = 'Hej'
 
 // Her laver vi en variabel "t", med en sammensat tekst som værdi: Hej August
-let t = s + ' August'
+let t = s + ' Mattis'
 
 // Her spørger vi om længden af teksten er større end 5 bogstaver. Hvis det er sandt, viser vi en besked til brugeren
 if(t.length > 5) alert('Sikke en lang tekst!')
@@ -89,6 +89,9 @@ let number = Math.random()
 
 // Her laver vi en variabel "distance" med afstanden mellem to punkter (x1, y1) og (x2, y2)
 let distance = Math.hypot(x2 - x1, y2 - y1)
+
+// Det kan også skrived direkte med Pytagoros således, hvor x² skrives: x ** 2
+let distance2 = Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 // Her beder vi om at funktionen "handleKeyDown" bliver kaldt når spilleren trykker på en tast
 addEventListener('keydown', handleKeyDown)
