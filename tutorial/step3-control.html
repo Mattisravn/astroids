@@ -31,7 +31,7 @@
             radians: radians,
         }
     }
-    
+
     function createSpriteElement(image, width, height, x, y, radians) {
         let element = document.createElement('div')
         element.style.position = 'absolute'
@@ -50,7 +50,7 @@
 
     function runGame() {
         controlShip()
-        moveSprite(ship)
+        moveSprite(ship)  
         requestAnimationFrame(runGame)
     }    
 
@@ -73,10 +73,10 @@
     function moveSprite(sprite) {
         sprite.x += sprite.velocityX
         sprite.y += sprite.velocityY
-        let minX = -100
-        let maxX = window.innerWidth + 100
-        let minY = -100
-        let maxY = window.innerHeight + 100
+        let minX = -50
+        let maxX = window.innerWidth + 50
+        let minY = -50
+        let maxY = window.innerHeight + 50
         if(sprite.x < minX) sprite.x = maxX
         if(sprite.x > maxX) sprite.x = minX
         if(sprite.y < minY) sprite.y = maxY
