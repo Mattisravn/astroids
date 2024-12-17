@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<title>Asteroids!</title>
+<body><script>
+
+    document.body.style.backgroundColor = 'black'
+    document.body.style.margin = '0px'
+    document.body.style.overflow = 'hidden'
+    
+    let ship = createShip()
+
+    function createShip() {
+        let x = window.innerWidth / 2
+        let y = window.innerHeight / 2
+        let ship = createSprite('images/ship.png', 30, 30, x, y, 0)
+        return ship
+    }
+
+    function createSprite(image, width, height, x, y, radians) {
+        return {
+            element: createSpriteElement(image, width, height, x, y, radians),
+            x: x,
+            y: y,
+            velocityX: 0,
+            velocityY: 0,
+            radians: radians,
+        }
+    }
+    
+    function createSpriteElement(image, width, height, x, y, radians) {
+        let element = document.createElement('div')
+        element.style.position = 'absolute'
+        element.style.width = width + 'px'
+        element.style.height = height + 'px'
+        element.style.transform = 'translate(-50%, -50%)'
+        element.style.transformOrigin = 'top left'
+        element.style.backgroundImage = 'url("' + image + '")'
+        element.style.backgroundSize = 'contain'
+        element.style.left = x + 'px'
+        element.style.top = y + 'px'
+        element.style.rotate = radians + 'rad'
+        document.body.appendChild(element)
+        return element
+    }
+
+</script></body>
