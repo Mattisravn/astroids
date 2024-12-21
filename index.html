@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>Asteroids!</title>
+<title>Astroids!</title>
 <body><script>
 
     document.body.style.backgroundColor = 'black'
@@ -14,30 +14,46 @@
     
     let ship = createShip()
 
-    let asteroids = [
-        createAsteroid(),
-        createAsteroid(),
-        createAsteroid(),
-        createAsteroid(),
-        createAsteroid(),
+    let astroids = [
+        createAstroid(),
+        createAstroid(),
+        createAstroid(),
+        createAstroid(),
+        createAstroid(),
     ]
 
+    let bullets = []
+
     runGame()
+
+    function now() {
+        return performance.now() / 1000
+    }
 
     function createShip() {
         let x = window.innerWidth / 2
         let y = window.innerHeight / 2
-        let ship = createSprite('sprites/ship.png', 30, 30, x, y, 0)
+        let ship = createSprite('sprites/ship.png', 100, 100, x, y, 0)
         return ship
     }
 
-    function createAsteroid() {
+    function createAstroid() {
         let x = window.innerWidth * Math.random()
         let y = window.innerHeight * Math.random()
-        let asteroid = createSprite('sprites/rock.png', 60, 60, x, y, 0)
-        asteroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
-        asteroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
-        return asteroid
+        let astroid = createSprite('sprites/rock.png', 300, 300, x, y, 0)
+        astroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
+        astroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
+        return astroid
+    }
+
+    function createBullet() {
+        let x = ship.x
+        let y = ship.y
+        let bullet = createSprite('sprites/bullet.png', 4, 4, x, y, 0)
+        bullet.velocityX = ship.velocityX + Math.cos(ship.radians) * 13
+        bullet.velocityY = ship.velocityY + Math.sin(ship.radians) * 13
+        bullet.lifeEnd = now() + 1
+        return bullet
     }
 
     function createSprite(image, width, height, x, y, radians) {
@@ -72,7 +88,13 @@
     function runGame() {
         controlShip()
         moveSprite(ship)
-        for(let asteroid of asteroids) moveSprite(asteroid)
+        for(let astroid of astroids) moveSprite(astroid)
+        bullets = bullets.filter(function(bullet) {
+            let remove = bullet.lifeEnd < now()
+            if(remove) bullet.element.remove()
+            return !remove
+        })
+        for(let bullet of bullets) moveSprite(bullet) 
         collide()
         requestAnimationFrame(runGame)
     }    
@@ -89,7 +111,8 @@
             ship.velocityY += Math.sin(ship.radians) * 0.1
         }
         if(keyboard.Enter) {
-            
+            let bullet = createBullet()  
+            bullets.push(bullet)
         }
     }    
 
@@ -110,12 +133,23 @@
     }
 
     function collide() {
-        for(let asteroid of asteroids) {
-            let dx = asteroid.x - ship.x
-            let dy = asteroid.y - ship.y
+        for(let astroid of astroids) {
+            let dx = astroid.x - ship.x
+            let dy = astroid.y - ship.y
             let distance = Math.sqrt(dx*dx + dy*dy)
-            if(distance < 40) {
+            if(distance < 130) {
                 implodeSound.play()
+            }
+
+            for(let bullet of bullets) {
+                let dx2 = bullet.x - astroid.x
+                let dy2 = bullet.y - astroid.y
+                let distance2 = Math.sqrt(dx2*dx2 + dy2*dy2)
+                if (distance2 < 150) {
+                    // TODO remove the astroid from the astroids array as well
+                    // TODO play sound
+                    astroid.element.remove()
+                }
             }
         }
     }
