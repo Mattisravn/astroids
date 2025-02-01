@@ -47,8 +47,8 @@
     }
 
     function createBullet() {
-        let x = ship.x
-        let y = ship.y
+        let x = ship.x + Math.cos(ship.radians) * 50
+        let y = ship.y + Math.sin(ship.radians) * 50
         let bullet = createSprite('sprites/bullet.png', 4, 4, x, y, 0)
         bullet.velocityX = ship.velocityX + Math.cos(ship.radians) * 13
         bullet.velocityY = ship.velocityY + Math.sin(ship.radians) * 13
@@ -78,6 +78,7 @@
         element.style.backgroundSize = 'contain' 
         element.style.backgroundRepeat = "no-repeat";
         element.style.imageRendering = "pixelated";
+        element.style.backgroundPosition = "center"
         element.style.left = x + 'px'
         element.style.top = y + 'px'
         element.style.rotate = radians + 'rad'
