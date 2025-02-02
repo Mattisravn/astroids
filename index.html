@@ -6,24 +6,28 @@
     document.body.style.margin = '0px'
     document.body.style.overflow = 'hidden'
     
+    let nextId = 1
+
     let implodeSound = new Audio('sounds/oof.mp3')
-    
+    let shootSound = new Audio('sounds/shoot.wav')
+    let bangSound = new Audio('sounds/bang.wav')
+
     let keyboard = {}
     addEventListener('keydown', function(event) {keyboard[event.key] = true})
     addEventListener('keyup', function(event) {keyboard[event.key] = false})
     
     let ship = createShip()
 
-    let astroids = [
-        createAstroid(),
-        createAstroid(),
-        createAstroid(),
-        createAstroid(),
-        createAstroid(),
-    ]
+    let astroids = new Map() 
 
-    let bullets = []
+    let bullets = new Map()
 
+    for(let i = 0; i < 5; i++) {
+        let astroid = createAstroid()
+        astroids.set(astroid.id, astroid)
+    }
+ 
+    console.log("Starting game")
     runGame()
 
     function now() {
@@ -34,6 +38,8 @@
         let x = window.innerWidth / 2
         let y = window.innerHeight / 2
         let ship = createSprite('sprites/ship.png', 100, 100, x, y, 0)
+        ship.reloadTime = 0.5
+        ship.gunShot = -1
         return ship
     }
 
@@ -47,9 +53,10 @@
     }
 
     function createBullet() {
+        shootSound.play()
         let x = ship.x + Math.cos(ship.radians) * 50
         let y = ship.y + Math.sin(ship.radians) * 50
-        let bullet = createSprite('sprites/bullet.png', 4, 4, x, y, 0)
+        let bullet = createSprite('sprites/bullet.png', 10, 10, x, y, 0)
         bullet.velocityX = ship.velocityX + Math.cos(ship.radians) * 13
         bullet.velocityY = ship.velocityY + Math.sin(ship.radians) * 13
         bullet.lifeEnd = now() + 1
@@ -57,7 +64,9 @@
     }
 
     function createSprite(image, width, height, x, y, radians) {
+        let id = nextId++
         return {
+            id: id,
             element: createSpriteElement(image, width, height, x, y, radians),
             x: x,
             y: y,
@@ -89,13 +98,16 @@
     function runGame() {
         controlShip()
         moveSprite(ship)
-        for(let astroid of astroids) moveSprite(astroid)
-        bullets = bullets.filter(function(bullet) {
+        for(let astroid of astroids.values()) moveSprite(astroid)
+        for(let bullet of bullets.values()) {
             let remove = bullet.lifeEnd < now()
-            if(remove) bullet.element.remove()
-            return !remove
-        })
-        for(let bullet of bullets) moveSprite(bullet) 
+            if(remove) {
+                bullet.element.remove()  
+                bullets.delete(bullet.id)
+            }
+        }
+        
+        for(let bullet of bullets.values()) moveSprite(bullet) 
         collide()
         requestAnimationFrame(runGame)
     }    
@@ -111,9 +123,10 @@
             ship.velocityX += Math.cos(ship.radians) * 0.1
             ship.velocityY += Math.sin(ship.radians) * 0.1
         }
-        if(keyboard.Enter) {
+        if(keyboard.Enter && ship.gunShot < now() - ship.reloadTime) {
+            ship.gunShot = now()
             let bullet = createBullet()  
-            bullets.push(bullet)
+            bullets.set(bullet.id, bullet)
         }
     }    
 
@@ -134,25 +147,32 @@
     }
 
     function collide() {
-        for(let astroid of astroids) {
+        for(let astroid of astroids.values()) {
             let dx = astroid.x - ship.x
             let dy = astroid.y - ship.y
             let distance = Math.sqrt(dx*dx + dy*dy)
             if(distance < 130) {
+                astroids.delete(astroid.id)
+                astroid.element.remove()
+                console.log('Game Over!')
+                implodeSound.currentTime = 0.45
                 implodeSound.play()
             }
 
-            for(let bullet of bullets) {
+            for(let bullet of bullets.values()) {
                 let dx2 = bullet.x - astroid.x
                 let dy2 = bullet.y - astroid.y
                 let distance2 = Math.sqrt(dx2*dx2 + dy2*dy2)
                 if (distance2 < 150) {
-                    // TODO remove the astroid from the astroids array as well
-                    // TODO play sound
+                    bullets.delete(bullet.id)
+                    bullet.element.remove()
+                    astroids.delete(astroid.id)
                     astroid.element.remove()
+                    bangSound.play()
                 }
             }
         }
     }
+
 
 </script></body>
