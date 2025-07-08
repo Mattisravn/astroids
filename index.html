@@ -5,67 +5,127 @@
     document.body.style.backgroundColor = 'black'
     document.body.style.margin = '0px'
     document.body.style.overflow = 'hidden'
-    
-    let nextId = 1
-
-    let gameOver = false
-    let gameWon = false
 
     let implodeSound = new Audio('sounds/oof.mp3')
     let shootSound = new Audio('sounds/shoot.wav')
     let bangSound = new Audio('sounds/bang.wav')
 
+    let nextId = null
+
+    let gameOver = null
+    let gameWon = null 
+
+    let gameRunning = false
+
+    let winScreen = null
+    let loseScreen = null
+    let retryButton = null
+
+    let ship = null
+
+    let astroids = null
+    let bullets = null
+
+    let astroidCount = null
+
     let keyboard = {}
     addEventListener('keydown', function(event) {keyboard[event.key] = true})
     addEventListener('keyup', function(event) {keyboard[event.key] = false})
-    
-    let ship = createShip()
-
-    let astroids = new Map() 
-
-    let bullets = new Map()
-
-    let astroidCount = 0
-
-    for(let i = 0; i < 5; i++) {
-        let astroid = createAstroid()
-        astroids.set(astroid.id, astroid)
-    }
- 
-    console.log("Starting game")
-    runGame()
 
     function now() {
         return performance.now() / 1000
     }
 
-    function createShip() {
-        let x = window.innerWidth / 2
-        let y = window.innerHeight / 2
-        let ship = createSprite('sprites/ship.png', 100, 100, x, y, 0)
-        ship.reloadTime = 0.5
-        ship.gunShot = -1
-        return ship
-    }
+    
+    reStartGame()
+    runGame()
+    
+    function reStartGame() {
 
-    function createAstroid() {
-        astroidCount++
-        let x = window.innerWidth * Math.random()
-        let y = window.innerHeight * Math.random()
-        
-        let dx = x - ship.x
-        let dy = y - ship.y
-        let distance = Math.sqrt(dx*dx + dy*dy)
-        if(distance < 200) {
-            return createAstroid()
-        } else {
-            let astroid = createSprite('sprites/rock.png', 300, 300, x, y, 0)
-            astroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
-            astroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
-            return astroid
+        gameRunning = false
+
+        if(loseScreen) {
+            loseScreen.element.remove()
+            loseScreen = null
         }
-         
+
+        if(winScreen) {
+            winScreen.element.remove()
+            winScreen = null
+        }
+
+        if(astroids) {
+            for(let astroid of astroids.values()) {
+                astroid.element.remove()
+            }
+        }
+
+        if(bullets) {
+            for(let bullet of bullets.values()) {
+                bullet.element.remove()
+            }
+        }
+
+        if(ship) {
+            ship.element.remove()
+            ship = null
+        }
+
+        if(retryButton) {
+            retryButton.element.remove()
+            retryButton = null
+        }
+
+        nextId = 1
+
+        gameOver = false
+        gameWon = false
         
+        ship = createShip()
+
+        astroids = new Map() 
+
+        bullets = new Map()
+
+        astroidCount = 0
+
+        for(let i = 0; i < 5; i++) {
+            let astroid = createAstroid()
+            astroids.set(astroid.id, astroid)
+        }
+    
+        console.log("Starting game")
+        
+
+        function createShip() {
+            let x = window.innerWidth / 2
+            let y = window.innerHeight / 2
+            let ship = createSprite('sprites/ship.png', 100, 100, x, y, 0)
+            ship.reloadTime = 0.5
+            ship.gunShot = -1
+            return ship
+        }
+
+
+        function createAstroid() {
+            let x = window.innerWidth * Math.random()
+            let y = window.innerHeight * Math.random()
+            
+            let dx = x - ship.x
+            let dy = y - ship.y
+            let distance = Math.sqrt(dx*dx + dy*dy)
+            if(distance < 200) {
+                return createAstroid()
+            } else {
+                let astroid = createSprite('sprites/rock.png', 300, 300, x, y, 0)
+                astroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
+                astroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
+                return astroid
+            }
+        }
+        
+        gameRunning = true
+            
     }
 
     function createBullet() {
@@ -112,20 +172,22 @@
     }
 
     function runGame() {
-        controlShip()
-        moveSprite(ship)
-        for(let astroid of astroids.values()) moveSprite(astroid)
-        for(let bullet of bullets.values()) {
-            let remove = bullet.lifeEnd < now()
-            if(remove) {
-                bullet.element.remove()  
-                bullets.delete(bullet.id)
-            }
+        if (gameRunning = true) {
+            controlShip()
+            moveSprite(ship)
+            for(let astroid of astroids.values()) moveSprite(astroid)
+                for(let bullet of bullets.values()) {
+                    let remove = bullet.lifeEnd < now()
+                    if(remove) {
+                        bullet.element.remove()  
+                        bullets.delete(bullet.id)
+                    }
+                }
+            
+            for(let bullet of bullets.values()) moveSprite(bullet) 
+            collide()
+            requestAnimationFrame(runGame)
         }
-        
-        for(let bullet of bullets.values()) moveSprite(bullet) 
-        collide()
-        requestAnimationFrame(runGame)
     }    
 
     function controlShip() {
@@ -174,7 +236,8 @@
                 astroid.element.remove()
                 let x = window.innerWidth / 2
                 let y = window.innerHeight / 2
-                createSprite('sprites/gameOver.png', 500,500, x, y, 0)
+                loseScreen = createSprite('sprites/loseScreen.png', 500,500, x, y - 100, 0)
+                createRetryButton(x,y + 200)
                 console.log('Game Over!')
                 implodeSound.currentTime = 0.45
                 implodeSound.play()
@@ -189,18 +252,29 @@
                     bullet.element.remove()
                     astroids.delete(astroid.id)
                     astroid.element.remove()
-                    astroidCount--
-                    if(astroidCount <= 0) {
+                    console.log(astroidCount)
+                    astroidCount++
+                    console.log(astroidCount)
+                    if(astroidCount >= 5) {
                         gameWon = true
                         let x = window.innerWidth / 2
                         let y = window.innerHeight / 2
-                        createSprite('sprites/winScreen.png', 600,600, x, y, 0)
+                        winScreen = createSprite('sprites/winScreen.png', 600,600, x, y - 200, 0)
+                        createRetryButton(x, y)
                         console.log('You won!')
                     }
                     bangSound.play()
                 }
             }
         }
+    }
+
+    function createRetryButton(x, y) {
+        retryButton = createSprite('sprites/retryButton.png', 300, 300, x, y, 0)
+        retryButton.element.addEventListener('click', function() {
+            reStartGame()
+        })
+        document.body.appendChild(retryButton.element)
     }
 
 
