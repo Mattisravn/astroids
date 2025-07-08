@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<title>Astroids!</title>
+<title>Astroids! - your favorit game</title>
 <body><script>
 
     document.body.style.backgroundColor = 'black'
@@ -7,6 +7,9 @@
     document.body.style.overflow = 'hidden'
     
     let nextId = 1
+
+    let gameOver = false
+    let gameWon = false
 
     let implodeSound = new Audio('sounds/oof.mp3')
     let shootSound = new Audio('sounds/shoot.wav')
@@ -21,6 +24,8 @@
     let astroids = new Map() 
 
     let bullets = new Map()
+
+    let astroidCount = 0
 
     for(let i = 0; i < 5; i++) {
         let astroid = createAstroid()
@@ -44,12 +49,23 @@
     }
 
     function createAstroid() {
+        astroidCount++
         let x = window.innerWidth * Math.random()
         let y = window.innerHeight * Math.random()
-        let astroid = createSprite('sprites/rock.png', 300, 300, x, y, 0)
-        astroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
-        astroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
-        return astroid
+        
+        let dx = x - ship.x
+        let dy = y - ship.y
+        let distance = Math.sqrt(dx*dx + dy*dy)
+        if(distance < 200) {
+            return createAstroid()
+        } else {
+            let astroid = createSprite('sprites/rock.png', 300, 300, x, y, 0)
+            astroid.velocityX = Math.cos(Math.random() * 2 * Math.PI) * 3
+            astroid.velocityY = Math.sin(Math.random() * 2 * Math.PI) * 3
+            return astroid
+        }
+         
+        
     }
 
     function createBullet() {
@@ -123,7 +139,7 @@
             ship.velocityX += Math.cos(ship.radians) * 0.1
             ship.velocityY += Math.sin(ship.radians) * 0.1
         }
-        if(keyboard.Enter && ship.gunShot < now() - ship.reloadTime) {
+        if(keyboard.Enter && ship.gunShot < now() - ship.reloadTime && gameOver == false) {
             ship.gunShot = now()
             let bullet = createBullet()  
             bullets.set(bullet.id, bullet)
@@ -151,9 +167,14 @@
             let dx = astroid.x - ship.x
             let dy = astroid.y - ship.y
             let distance = Math.sqrt(dx*dx + dy*dy)
-            if(distance < 130) {
+            if(distance < 140 && gameOver == false) {
+                gameOver = true
+                ship.element.remove()
                 astroids.delete(astroid.id)
                 astroid.element.remove()
+                let x = window.innerWidth / 2
+                let y = window.innerHeight / 2
+                createSprite('sprites/gameOver.png', 500,500, x, y, 0)
                 console.log('Game Over!')
                 implodeSound.currentTime = 0.45
                 implodeSound.play()
@@ -163,11 +184,19 @@
                 let dx2 = bullet.x - astroid.x
                 let dy2 = bullet.y - astroid.y
                 let distance2 = Math.sqrt(dx2*dx2 + dy2*dy2)
-                if (distance2 < 150) {
+                if (distance2 < 110) {
                     bullets.delete(bullet.id)
                     bullet.element.remove()
                     astroids.delete(astroid.id)
                     astroid.element.remove()
+                    astroidCount--
+                    if(astroidCount <= 0) {
+                        gameWon = true
+                        let x = window.innerWidth / 2
+                        let y = window.innerHeight / 2
+                        createSprite('sprites/winScreen.png', 600,600, x, y, 0)
+                        console.log('You won!')
+                    }
                     bangSound.play()
                 }
             }
