@@ -191,13 +191,13 @@
     }    
 
     function controlShip() {
-        if(keyboard.ArrowLeft) {
+        if(keyboard.ArrowLeft || keyboard.a) {
             ship.radians -= 0.1
         }
-        if(keyboard.ArrowRight) {
+        if(keyboard.ArrowRight || keyboard.d) {
             ship.radians += 0.1
         }
-        if(keyboard.ArrowUp) {
+        if(keyboard.ArrowUp || keyboard.w) {
             ship.velocityX += Math.cos(ship.radians) * 0.1
             ship.velocityY += Math.sin(ship.radians) * 0.1
         }
