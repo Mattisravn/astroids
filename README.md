@@ -8,4 +8,4 @@ A remake of an old classic game in javascript...
 2) Clone or [download](https://github.com/Mattisravn/astroids/archive/refs/heads/main.zip) and unzip this repository
 3) Open the `index.html` file in firefox (**not Crome!**)
 
-or just simply go to [httpsastroids.mattisravn.com](https://astroids.mattisravn.com/)
+or just simply go to [astroids.mattisravn.com](https://astroids.mattisravn.com/)
